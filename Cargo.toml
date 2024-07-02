@@ -1,0 +1,26 @@
+# [profile.release-with-debug]
+# inherits = "release"
+# debug = true
+# split-debuginfo = "packed"
+
+[workspace]
+members = [
+    "app/rust/tracker"
+]
+
+exclude = []
+
+# This prevents a Travis CI error when building for Windows.
+resolver = "2"
+
+[workspace.package]
+version = "0.0.0"
+authors = ["pgdev"]
+repository = "https://github.com/paulgsc/my-moosick"
+homepage = "https://maishatu.com/"
+license = "MIT"
+edition = "2021"
+
+[workspace.dependencies]
+
+
