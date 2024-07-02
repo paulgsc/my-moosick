@@ -5,7 +5,7 @@
 
 [workspace]
 members = [
-    "app/rust/tracker"
+    "apps/rust/tracker"
 ]
 
 exclude = []
