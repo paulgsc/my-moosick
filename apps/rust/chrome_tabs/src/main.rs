@@ -1,4 +1,4 @@
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Duration, Utc};
 use dirs::home_dir;
 use rusqlite::{Connection, Result};
 use std::path::PathBuf;
@@ -51,7 +51,38 @@ fn get_last_visit_time(conn: &Connection, url: &str) -> Result<DateTime<Utc>> {
 	}
 }
 
+fn get_recent_tabs_with_active_time(conn: &Connection) -> Result<Vec<Tab>> {
+	let mut stmt = conn.prepare(
+		"
+        SELECT u.url, u.title, u.last_visit_time,
+               SUM(CASE WHEN v.visit_duration > 0 THEN v.visit_duration ELSE 0 END) as total_time
+        FROM urls u
+        LEFT JOIN visits v ON u.id = v.url
+        GROUP BY u.id
+        ORDER BY u.last_visit_time DESC
+        LIMIT 50",
+	)?;
+
+	let tab_iter = stmt.query_map([], |row| {
+		Ok(Tab {
+			url: row.get(0)?,
+			title: row.get(1)?,
+			last_visited: chrome_time_to_datetime(row.get(2)?),
+			active_time: Duration::microseconds(row.get(3)?),
+		})
+	})?;
+
+	tab_iter.collect()
+}
+
+fn chrome_time_to_datetime(chrome_time: i64) -> DateTime<Utc> {
+	let seconds_since_epoch = (chrome_time / 1_000_000) - 11_644_473_600;
+	DateTime::from_timestamp(seconds_since_epoch, 0).unwrap_or(Utc::now())
+}
+
 struct Tab {
 	url: String,
 	title: String,
+	last_visited: DateTime<Utc>,
+	active_time: Duration,
 }
