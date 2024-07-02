@@ -1,1 +1,1 @@
-browser-history
+browser-history==0.4.1
