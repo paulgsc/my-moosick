@@ -4,7 +4,7 @@
 # split-debuginfo = "packed"
 
 [workspace]
-members = [
+members = [ "apps/rust/chrome_tabs",
     "apps/rust/tracker"
 ]
 
